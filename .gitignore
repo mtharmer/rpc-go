@@ -1,1 +1,3 @@
-rpc-go
+bin/
+**/*.env
+**/*.pem
