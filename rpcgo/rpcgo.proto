@@ -5,6 +5,7 @@ package rpcgo;
 
 service DoStuff {
 	rpc PrintHello (HelloRequest) returns (HelloReply) {};
+  rpc ProcessPerson (PersonRequest) returns (PersonReply) {};
 }
 
 message HelloRequest {
@@ -13,4 +14,15 @@ message HelloRequest {
 
 message HelloReply {
 	string message = 1;
+}
+
+message PersonRequest {
+  string name = 1;
+  int32 age = 2;
+  string city = 3;
+}
+
+message PersonReply {
+  string message = 1;
+  int32 status = 2;
 }

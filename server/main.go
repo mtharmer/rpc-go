@@ -7,8 +7,8 @@ import (
 	"log"
 	"net"
 
-	"google.golang.org/grpc"
 	pb "github.com/mtharmer/rpc-go/rpcgo"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -22,6 +22,10 @@ type server struct {
 
 func (s *server) PrintHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	return &pb.HelloReply{Message: "Hello again " + in.GetName()}, nil
+}
+
+func (s *server) ProcessPerson(ctx context.Context, in *pb.PersonRequest) (*pb.PersonReply, error) {
+	return &pb.PersonReply{Message: fmt.Sprintf("Hello %s, you are %d years old from %s", in.GetName(), in.GetAge(), in.GetCity()), Status: 200}, nil
 }
 
 func main() {

@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DoStuffClient interface {
 	PrintHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloReply, error)
+	ProcessPerson(ctx context.Context, in *PersonRequest, opts ...grpc.CallOption) (*PersonReply, error)
 }
 
 type doStuffClient struct {
@@ -42,11 +43,21 @@ func (c *doStuffClient) PrintHello(ctx context.Context, in *HelloRequest, opts .
 	return out, nil
 }
 
+func (c *doStuffClient) ProcessPerson(ctx context.Context, in *PersonRequest, opts ...grpc.CallOption) (*PersonReply, error) {
+	out := new(PersonReply)
+	err := c.cc.Invoke(ctx, "/rpcgo.DoStuff/ProcessPerson", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DoStuffServer is the server API for DoStuff service.
 // All implementations must embed UnimplementedDoStuffServer
 // for forward compatibility
 type DoStuffServer interface {
 	PrintHello(context.Context, *HelloRequest) (*HelloReply, error)
+	ProcessPerson(context.Context, *PersonRequest) (*PersonReply, error)
 	mustEmbedUnimplementedDoStuffServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedDoStuffServer struct {
 
 func (UnimplementedDoStuffServer) PrintHello(context.Context, *HelloRequest) (*HelloReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PrintHello not implemented")
+}
+func (UnimplementedDoStuffServer) ProcessPerson(context.Context, *PersonRequest) (*PersonReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessPerson not implemented")
 }
 func (UnimplementedDoStuffServer) mustEmbedUnimplementedDoStuffServer() {}
 
@@ -88,6 +102,24 @@ func _DoStuff_PrintHello_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DoStuff_ProcessPerson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PersonRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DoStuffServer).ProcessPerson(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rpcgo.DoStuff/ProcessPerson",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DoStuffServer).ProcessPerson(ctx, req.(*PersonRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DoStuff_ServiceDesc is the grpc.ServiceDesc for DoStuff service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var DoStuff_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PrintHello",
 			Handler:    _DoStuff_PrintHello_Handler,
+		},
+		{
+			MethodName: "ProcessPerson",
+			Handler:    _DoStuff_ProcessPerson_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
